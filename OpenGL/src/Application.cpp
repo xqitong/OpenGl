@@ -120,7 +120,9 @@ int main(void)
         glfwTerminate();
         return -1;
     }
-
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
@@ -129,7 +131,8 @@ int main(void)
     if (glewInit() != GLEW_OK)
     {
         std::cout << "Error!" << std::endl;
-    } std::cout << glGetString(GL_VERSION) <<std::endl;
+    } 
+    std::cout << glGetString(GL_VERSION) <<std::endl;
     //
 
     float positions[] = {
