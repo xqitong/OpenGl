@@ -165,26 +165,32 @@ int main(void)
     
      glUseProgram(shader);
      //glUniform
-     GLCall( int location = glGetUniformLocation(shader, "u_Color"));
-     ASSERT(location != -1)   // -1 means not found
+     GLCall( int loc_u_Color = glGetUniformLocation(shader, "u_Color"));
+     ASSERT(loc_u_Color != -1)   // -1 means not found
     float r = 0.0f;
-    float increment = 0.05f;
-     
+    float increment = 0.05f;    
+
+    glUseProgram(0);
     glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        //glDrawArrays(GL_TRIANGLES, 0, 6);
-        //glDrawArrays(GL_TRIANGLES, 3, 6);
-        GLCall(glUniform4f(location, 0.0f, r, 0.0f, 0.0f));
+        glUseProgram(shader);
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+        
+
+        float timeValue = glfwGetTime();
+        float r = sin(timeValue) / 2.0f + 0.5f;
+        GLCall(glUniform4f(loc_u_Color, 0.0f, r, 0.0f, 0.0f));
         GLCall(glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,nullptr));
 
-        if (r > 1.0f)
-        {
-            r = 0.0f;
-        }
-        r += increment;
+   
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
