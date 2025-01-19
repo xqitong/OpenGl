@@ -7,6 +7,7 @@
 #include "Render.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "VertexArray.h"
 
 
 struct ShaderProgramSource
@@ -131,43 +132,52 @@ int main(void)
             0,1,2,
             2,3,0
         };
-        unsigned int buffer;
+
+
+        VertexArray va;
+
         VertexBuffer vb(positions, 4 * 2 * sizeof(float));
-    
-    
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+        VertexBufferLayout layout;
+        layout.Push<float>(2);
+        va.AddBuffer(vb, layout);
 
         unsigned int ibo;
         IndexBuffer ib(indices, 6);
-        //glGenBuffers(1, &ibo);
-        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-        //glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
         ShaderProgramSource source = ParseShader("res/shaders/Basic.shader");
         std::cout <<"VERTEX:\n" << source.VertexSource << "\n"
             << "FRAGMENT:\n" << source.FragmentSource << "\n";
         unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
     
-            glUseProgram(shader);
-            //glUniform
-            GLCall( int loc_u_Color = glGetUniformLocation(shader, "u_Color"));
-            ASSERT(loc_u_Color != -1)   // -1 means not found
+        glUseProgram(shader);
+        //glUniform
+        GLCall( int loc_u_Color = glGetUniformLocation(shader, "u_Color"));
+        ASSERT(loc_u_Color != -1)   // -1 means not found
         float r = 0.0f;
         float increment = 0.05f;    
+
+        glUseProgram(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             glClear(GL_COLOR_BUFFER_BIT);
             /* Render here */                          
-        
+            glUseProgram(shader);
+
             float timeValue = glfwGetTime();
             float r = sin(timeValue) / 2.0f + 0.5f;
             GLCall(glUniform4f(loc_u_Color,r, 1.0f - r, 0.0f, 0.0f));
-            GLCall(glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,nullptr));
-            GLfloat attrib_offset[] = { (float)sin(timeValue)*0.5f, (float)cos(timeValue) * 0.5f, 0.0f, 0.0f};
+            va.Bind();
+            ib.Bind();
+            GLfloat attrib_offset[] = { (float)sin(timeValue) * 0.5f, (float)cos(timeValue) * 0.5f, 0.0f, 0.0f };
             glVertexAttrib4fv(1, attrib_offset);
+
+            GLCall(glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,nullptr));
+
+
    
             /* Swap front and back buffers */
             glfwSwapBuffers(window);
