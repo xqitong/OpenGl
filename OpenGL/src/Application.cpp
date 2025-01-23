@@ -11,7 +11,9 @@
 #include "VertexBufferLayout.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "glm/glm.hpp"
 
+#include "glm/gtc/matrix_transform.hpp"
 
 
 int main(void)
@@ -23,7 +25,7 @@ int main(void)
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 320, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -70,9 +72,12 @@ int main(void)
         //unsigned int ibo;
         IndexBuffer ib(indices, 6);
 
+        glm::mat4 proj = glm::ortho(-4.0f, 4.0f, -3.f, 3.f, -1.0f, 1.0f);
+        
          Shader shader("res/shaders/Basic.shader");
          shader.Bind();
         shader.SetUniform4f("u_Color",0.8f,0.3f,0.8f,1.0f);
+        shader.SetUniformMat4f("u_MVP", proj);
         float r = 0.0f;
         float increment = 0.05f;    
 
