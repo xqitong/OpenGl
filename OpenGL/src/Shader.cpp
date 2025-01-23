@@ -39,6 +39,10 @@ void Shader::SetUniform1f(const std::string& name, float value)
 {
     GLCall(glUniform1f(GetUniformLocation(name), value));
 }
+void Shader::SetUniform1i(const std::string& name, int value)
+{
+    GLCall(glUniform1i(GetUniformLocation(name), value));
+}
 ShaderProgramSource Shader::ParseShader(const std::string& filepath)
 {
  
@@ -118,6 +122,9 @@ int Shader::GetUniformLocation(const std::string& name)
     if (it == m_UniformLocationCache.end())
     {
         GLCall(int loc = glGetUniformLocation(m_RendererID, name.c_str()));
+        if (loc == -1) {
+            std::cout << "Warning: uniform '" << name << "' doesn't exist" << std::endl;
+        }
         m_UniformLocationCache[name]= loc;
         return loc;
     }

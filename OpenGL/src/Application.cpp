@@ -10,6 +10,7 @@
 #include "VertexArray.h"
 #include "VertexBufferLayout.h"
 #include "Shader.h"
+#include "Texture.h"
 
 
 
@@ -44,10 +45,10 @@ int main(void)
     //
     {
         float positions[] = {
-            -0.5f, -0.5f,
-            0.5f,  -0.5f,
-            0.5f, 0.5f,
-            -0.5f, 0.5f,
+            -0.5f, -0.5f, 0.0f,  0.0f,
+            0.5f,  -0.5f, 1.0f,  0.0f,
+            0.5f, 0.5f,   1.0f,  1.0f,
+            -0.5f, 0.5f,  0.0f,  1.0f
 
         };
         unsigned int indices[]=
@@ -55,16 +56,18 @@ int main(void)
             0,1,2,
             2,3,0
         };
-
-
+        GLCall(glEnable(GL_BLEND));
+        GLCall(glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA));
+        
         VertexArray va;
 
-        VertexBuffer vb(positions, 4 * 2 * sizeof(float));
+        VertexBuffer vb(positions, 4 * 4 * sizeof(float));
         VertexBufferLayout layout;
+        layout.Push<float>(2);
         layout.Push<float>(2);
         va.AddBuffer(vb, layout);
 
-        unsigned int ibo;
+        //unsigned int ibo;
         IndexBuffer ib(indices, 6);
 
          Shader shader("res/shaders/Basic.shader");
@@ -73,9 +76,15 @@ int main(void)
         float r = 0.0f;
         float increment = 0.05f;    
 
-        shader.Unbind();
+        Texture texture("res/textures/ChernoLogo.png");
+        texture.Bind();
+        shader.SetUniform1i("u_Texture",0);
+
+
         va.Unbind();
-        vb.Unbind();
+        vb.Unbind(); 
+        ib.Unbind();
+        shader.Unbind();
         Render render;
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
@@ -88,10 +97,8 @@ int main(void)
             float r = sin(timeValue) / 2.0f + 0.5f;
             shader.Bind();
             shader.SetUniform4f("u_Color", r, 1.0f - r, 0.0f, 0.0f);
-            //GLCall(glUniform4f(loc_u_Color,r, 1.0f - r, 0.0f, 0.0f));
-            GLfloat attrib_offset[] = { (float)sin(timeValue) * 0.5f, (float)cos(timeValue) * 0.5f, 0.0f, 0.0f };
-            glVertexAttrib4fv(1, attrib_offset);
-            //shader.SetUniform4f("u_Color", r, 1.0f - r, 0.0f, 0.0f);
+            //GLfloat attrib_offset[] = { (float)sin(timeValue) * 0.5f, (float)cos(timeValue) * 0.5f, 0.0f, 0.0f };
+            //glVertexAttrib4fv(1, attrib_offset);
             render.Draw(va,ib,shader);
             //va.Bind();
             //ib.Bind();
