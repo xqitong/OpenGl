@@ -8,6 +8,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
+#include "VertexBufferLayout.h"
 #include "Shader.h"
 
 
@@ -75,24 +76,28 @@ int main(void)
         shader.Unbind();
         va.Unbind();
         vb.Unbind();
-
+        Render render;
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
-            glClear(GL_COLOR_BUFFER_BIT);
+            render.Clear();
+            //glClear(GL_COLOR_BUFFER_BIT);
             /* Render here */                          
 
             float timeValue = glfwGetTime();
             float r = sin(timeValue) / 2.0f + 0.5f;
             shader.Bind();
-            //GLCall(glUniform4f(loc_u_Color,r, 1.0f - r, 0.0f, 0.0f));
             shader.SetUniform4f("u_Color", r, 1.0f - r, 0.0f, 0.0f);
-            va.Bind();
-            ib.Bind();
+            //GLCall(glUniform4f(loc_u_Color,r, 1.0f - r, 0.0f, 0.0f));
             GLfloat attrib_offset[] = { (float)sin(timeValue) * 0.5f, (float)cos(timeValue) * 0.5f, 0.0f, 0.0f };
             glVertexAttrib4fv(1, attrib_offset);
+            //shader.SetUniform4f("u_Color", r, 1.0f - r, 0.0f, 0.0f);
+            render.Draw(va,ib,shader);
+            //va.Bind();
+            //ib.Bind();
 
-            GLCall(glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,nullptr));
+
+            //GLCall(glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,nullptr));
 
 
    
