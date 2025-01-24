@@ -25,7 +25,7 @@ int main(void)
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -47,10 +47,10 @@ int main(void)
     //
     {
         float positions[] = {
-            -0.5f, -0.5f, 0.0f,  0.0f,
-            0.5f,  -0.5f, 1.0f,  0.0f,
-            0.5f, 0.5f,   1.0f,  1.0f,
-            -0.5f, 0.5f,  0.0f,  1.0f
+            100.0f, 100.0f, 0.0f,  0.0f,
+            200.0f,  100.0f, 1.0f,  0.0f,
+            200.0f, 200.0f,   1.0f,  1.0f,
+            100.0f, 200.0f,  0.0f,  1.0f
 
         };
         unsigned int indices[]=
@@ -72,12 +72,18 @@ int main(void)
         //unsigned int ibo;
         IndexBuffer ib(indices, 6);
 
-        glm::mat4 proj = glm::ortho(-4.0f, 4.0f, -3.f, 3.f, -1.0f, 1.0f);
+        glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+        glm::vec4 vp(100.0f, 100.0f, 0.0f, 1.0f);
+        glm::mat4 view=glm::translate(glm::mat4(1.0f), glm::vec3(-100.0f,0.0f,0.0f));
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200.0f, 200.0f, 0.0f));
+        glm::mat4 mvp = proj * view * model;
+
+        glm::vec4 res = proj * vp;
         
          Shader shader("res/shaders/Basic.shader");
          shader.Bind();
         shader.SetUniform4f("u_Color",0.8f,0.3f,0.8f,1.0f);
-        shader.SetUniformMat4f("u_MVP", proj);
+        shader.SetUniformMat4f("u_MVP", mvp);
         float r = 0.0f;
         float increment = 0.05f;    
 
