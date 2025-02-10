@@ -17,6 +17,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "tests/TestClearColor.h"
 
 
 int main(void)
@@ -115,54 +116,19 @@ int main(void)
         bool show_another_window = false;
         ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
         Render render;
+        test::TestClearColor test;
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             render.Clear();
-            //glClear(GL_COLOR_BUFFER_BIT);
+            test.OnUpdate(0.0f);
+
+            test.OnRender();
             /* Render here */                          
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-           
-
-            {
-                glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
-                glm::mat4 mvp = proj * view * model;
-                shader.Bind();
-                shader.SetUniformMat4f("u_MVP", mvp);
-                render.Draw(va, ib, shader);
-            }
-            {
-                glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
-                glm::mat4 mvp = proj * view * model;
-                shader.Bind();
-                shader.SetUniformMat4f("u_MVP", mvp);
-                render.Draw(va, ib, shader);
-            }
-            //float timeValue = glfwGetTime();
-            //float r = sin(timeValue) / 2.0f + 0.5f;
-
-            //shader.SetUniform4f("u_Color", r, 1.0f - r, 0.0f, 0.0f);
-         
-
-     
-
-
-
-            //GLCall(glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,nullptr));
-            {
-                static float f = 0.0f;
-                static int counter = 0;
-
-                ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-                ImGui::SliderFloat3("TranslationA", &translationA.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-                ImGui::SliderFloat3("TranslationB", &translationB.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-
-                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-                ImGui::End();
-            }
+            test.OnImGuiRender();
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

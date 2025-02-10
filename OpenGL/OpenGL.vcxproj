@@ -179,6 +179,8 @@
     <ClCompile Include="src\VertexArray.cpp" />
     <ClCompile Include="src\VertexBufferLayout.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\tests\Test.cpp" />
+    <ClCompile Include="src\tests\TestClearColor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
@@ -637,6 +639,8 @@
     <ClInclude Include="src\VertexArray.h" />
     <ClInclude Include="src\VertexBufferLayout.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\tests\Test.h" />
+    <ClInclude Include="src\tests\TestClearColor.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\ChernoLogo.png" />
