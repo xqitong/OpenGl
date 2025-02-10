@@ -18,6 +18,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "tests/TestClearColor.h"
+#include "tests/Test.h"
 
 
 int main(void)
@@ -49,86 +50,47 @@ int main(void)
     } 
     std::cout << glGetString(GL_VERSION) <<std::endl;
     //
-    {
-        float positions[] = {
-            -50.0f, -50.0f, 0.0f,  0.0f,
-             50.0f, -50.0f, 1.0f,  0.0f,
-             50.0f,  50.0f, 1.0f,  1.0f,
-            -50.0f,  50.0f, 0.0f,  1.0f
-
-        };
-        unsigned int indices[]=
-        {
-            0,1,2,
-            2,3,0
-        };
+    {  
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA));
         
-        VertexArray va;
-
-        VertexBuffer vb(positions, 4 * 4 * sizeof(float));
-        VertexBufferLayout layout;
-        layout.Push<float>(2);
-        layout.Push<float>(2);
-        va.AddBuffer(vb, layout);
-
-        //unsigned int ibo;
-        IndexBuffer ib(indices, 6);
-
-        glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-        glm::vec4 vp(100.0f, 100.0f, 0.0f, 1.0f);
-        glm::mat4 view=glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,0.0f,0.0f));
-        //glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200.0f, 200.0f, 0.0f));
-        //glm::mat4 mvp = proj * view * model;
-
-        glm::vec4 res = proj * vp;
-        
-         Shader shader("res/shaders/Basic.shader");
-         shader.Bind();
-        shader.SetUniform4f("u_Color",0.8f,0.3f,0.8f,1.0f);
-
-        float r = 0.0f;
-        float increment = 0.05f;    
-
-        Texture texture("res/textures/ChernoLogo.png");
-        texture.Bind();
-        shader.SetUniform1i("u_Texture",0);
-
-
-        va.Unbind();
-        vb.Unbind(); 
-        ib.Unbind();
-        shader.Unbind();
-
+        Render render;
         ImGui::CreateContext();
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui::StyleColorsDark();
 
-        glm::vec3 translationA(200.0f, 200.0f, 0.0f);
-        glm::vec3 translationB(400.0f, 200.0f, 0.0f);
-        // 需要指定GLSL版本, 也就是shader中的version
         const char* glsl_version = "#version 330";
         ImGui_ImplOpenGL3_Init(glsl_version);
 
-        // Our state
-        bool show_demo_window = true;
-        bool show_another_window = false;
-        ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-        Render render;
-        test::TestClearColor test;
+        test::Test* currentTest = nullptr;
+        test::TestMenu* testMenu = new test::TestMenu(currentTest);
+
+        currentTest = testMenu;
+        testMenu->RegisterTest<test::TestClearColor>("Clear Color");
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
+            GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f ));
             render.Clear();
-            test.OnUpdate(0.0f);
 
-            test.OnRender();
             /* Render here */                          
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-            test.OnImGuiRender();
+
+            if (currentTest)
+            {
+                currentTest->OnUpdate(0.3f);
+                currentTest->OnRender();
+                ImGui::Begin("Test");
+                if (currentTest != testMenu && ImGui::Button("<-"))
+                {
+                   delete currentTest;
+                   currentTest = testMenu;
+                }
+                currentTest->OnImGuiRender();
+                ImGui::End();
+            }
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -140,6 +102,12 @@ int main(void)
             glfwPollEvents();
         }
     
+
+        delete currentTest;
+        if (currentTest != testMenu)
+        {
+            delete testMenu;
+        }
     }
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
